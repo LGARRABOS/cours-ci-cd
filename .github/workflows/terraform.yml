@@ -135,10 +135,14 @@ jobs:
       - name: Infracost Share to Summary (Bonus)
         if: always()
         run: |
-          echo "### 💰 Infracost Breakdown" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
-          cat /tmp/infracost-table.txt >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          if [ -f /tmp/infracost-table.txt ]; then
+            echo "### 💰 Infracost Breakdown" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/infracost-table.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Infracost Breakdown non disponible (l'étape précédente a échoué)" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Install Python 3
         uses: actions/setup-python@v5
