@@ -35,6 +35,10 @@ jobs:
       #   run: terraform fmt .....
       #   working-directory: ./terraform
       # -----------------------------------------------------------------------
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+        working-directory: ./terraform
 
       # -----------------------------------------------------------------------
       # TODO: Add a Terraform Init step to initialise the working directory.
@@ -45,6 +49,10 @@ jobs:
       #   run: terraform init .....
       #   working-directory: ./terraform
       # -----------------------------------------------------------------------
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: ./terraform
 
       # -----------------------------------------------------------------------
       # TODO: Add a Terraform Plan step to preview the changes Terraform will
@@ -60,6 +68,15 @@ jobs:
       #   if: steps.plan.outcome == 'failure'
       #   run: exit 1
       # -----------------------------------------------------------------------
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        working-directory: ./terraform
+        continue-on-error: true
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
 
       - name: Checkov - Terraform Security Scan
         id: checkov
@@ -87,6 +104,10 @@ jobs:
       #       Hint — use the action: infracost/actions/setup@v3
       #              and pass api-key: ${{ secrets.INFRACOST_API_KEY }}
       # -----------------------------------------------------------------------
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
 
       - name: Infracost Breakdown
         id: infracost
@@ -103,11 +124,22 @@ jobs:
       #   run: terraform apply .....
       #   working-directory: ./terraform
       # -----------------------------------------------------------------------
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform
 
       # -----------------------------------------------------------------------
       # TODO (bonus): Once Infracost is set up, publish its cost table to the
       #               GitHub job summary using $GITHUB_STEP_SUMMARY.
       # -----------------------------------------------------------------------
+      - name: Infracost Share to Summary (Bonus)
+        if: always()
+        run: |
+          echo "### 💰 Infracost Breakdown" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/infracost-table.txt >> $GITHUB_STEP_SUMMARY
+          echo '
+```' >> $GITHUB_STEP_SUMMARY
 
       - name: Install Python 3
         uses: actions/setup-python@v5
