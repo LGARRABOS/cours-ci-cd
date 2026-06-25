@@ -60,7 +60,7 @@ jobs:
       #
       # - name: Terraform Plan
       #   id: plan
-      #   run: terraform plan .....
+      #   run: terraform plan -no-color
       #   working-directory: ./terraform
       #   continue-on-error: true
       #
@@ -94,9 +94,13 @@ jobs:
         if: always()
         working-directory: ./terraform
         run: |
-          while IFS= read -r line; do
-            echo "$line" >> $GITHUB_STEP_SUMMARY
-          done < results_github_failed_only.md
+          if [ -f results_github_failed_only.md ]; then
+            while IFS= read -r line; do
+              echo "$line" >> $GITHUB_STEP_SUMMARY
+            done < results_github_failed_only.md
+          else
+            echo "### ❌ Rapport Checkov non disponible (étapes précédentes en échec)" >> $GITHUB_STEP_SUMMARY
+          fi
 
       # -----------------------------------------------------------------------
       # TODO: Add the Infracost setup action to install the Infracost CLI and
@@ -141,7 +145,7 @@ jobs:
             cat /tmp/infracost-table.txt >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### ❌ Infracost Breakdown non disponible (l'étape précédente a échoué)" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Infracost Breakdown non disponible (étapes précédentes en échec)" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Install Python 3
