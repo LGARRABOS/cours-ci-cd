@@ -136,10 +136,9 @@ jobs:
         if: always()
         run: |
           echo "### 💰 Infracost Breakdown" >> $GITHUB_STEP_SUMMARY
-          echo '```text' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
           cat /tmp/infracost-table.txt >> $GITHUB_STEP_SUMMARY
-          echo '
-```' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Install Python 3
         uses: actions/setup-python@v5
